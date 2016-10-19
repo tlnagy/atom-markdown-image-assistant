@@ -1,7 +1,7 @@
 {
   "name": "markdown-image-assistant",
   "main": "./lib/main",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Add sane drag and drop and copy/paste support for images to markdown files",
   "keywords": [
     "markdown",
