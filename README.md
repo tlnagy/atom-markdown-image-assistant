@@ -1,4 +1,4 @@
-# atom-markdown-image-assistant
+# [atom-markdown-image-assistant](https://atom.io/packages/markdown-image-assistant)
 
 Add sane drag and drop and copy/paste support for images to markdown files. This is especially useful for notetaking in Atom.
 
