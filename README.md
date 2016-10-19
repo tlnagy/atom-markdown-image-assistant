@@ -2,4 +2,4 @@
 
 Add sane drag and drop and copy/paste support for images to markdown files
 
-![](image-assistant-demo.gif)
+![](https://raw.githubusercontent.com/tlnagy/atom-markdown-image-assistant/master/image-assistant-demo.gif)
