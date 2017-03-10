@@ -53,7 +53,6 @@ module.exports = MarkdownImageAssistant =
         editor = atom.workspace.getActiveTextEditor()
         e.stopImmediatePropagation()
         imgbuffer = img.toPng()
-        file = new File(editor.getPath())
         @process_file(editor, imgbuffer, ".png")
 
     # write a given buffer to the local "assets/" directory
@@ -75,7 +74,7 @@ module.exports = MarkdownImageAssistant =
         @create_dir assets_path, ()=>
             fs.writeFile path.join(assets_path, img_filename), imgbuffer, 'binary', ()=>
                 console.log "Copied file over to #{assets_path}"
-                editor.insertText "![](#{path.join("assets", img_filename)})"
+                editor.insertText "![](assets/#{img_filename})"
 
         return false
 
