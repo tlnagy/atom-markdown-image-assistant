@@ -18,6 +18,11 @@ module.exports = MarkdownImageAssistant =
             description: "When dragging and dropping files, whether to perserve original file names when copying over into the image directory"
             type: 'boolean'
             default: false
+        imageDir:
+            title: "Image directory"
+            description: "Local directory to copy images into; created if not found."
+            type: 'string'
+            default: "assets/"
 
     activate: (state) ->
         # Events subscribed to in atom's system can be easily cleaned up
@@ -75,7 +80,8 @@ module.exports = MarkdownImageAssistant =
             console.log "Adding images to non-markdown files is not supported"
             return false
 
-        assets_path = path.join(target_file, "..", "assets")
+        assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
+        assets_path = path.join(target_file, "..", assets_dir)
 
         md5 = crypto.createHash 'md5'
         md5.update(imgbuffer)
@@ -89,7 +95,7 @@ module.exports = MarkdownImageAssistant =
         @create_dir assets_path, ()=>
             fs.writeFile path.join(assets_path, img_filename), imgbuffer, 'binary', ()=>
                 console.log "Copied file over to #{assets_path}"
-                editor.insertText "![](assets/#{img_filename})"
+                editor.insertText "![](#{assets_dir}/#{img_filename})"
 
         return false
 
