@@ -7,10 +7,17 @@ module.exports = MarkdownImageAssistant =
     subscriptions: null
     config:
         suffixes:
+            title: "Active file types"
+            description: "File type that image assistant should activate for"
             type: 'array'
             default: ['.markdown', '.md', '.mdown', '.mkd', '.mkdow']
             items:
                 type: 'string'
+        preserveOrigName:
+            title: "Preserve original file names"
+            description: "When dragging and dropping files, whether to perserve original file names when copying over into the image directory"
+            type: 'boolean'
+            default: false
 
     activate: (state) ->
         # Events subscribed to in atom's system can be easily cleaned up
@@ -43,7 +50,12 @@ module.exports = MarkdownImageAssistant =
         for f in dropped_files
             if fs.lstatSync(f.path).isFile()
                 imgbuffer = new Buffer(fs.readFileSync(f.path))
-                @process_file(editor, imgbuffer, path.extname(f.path))
+                extname = path.extname(f.path)
+                if atom.config.get('markdown-image-assistant.preserveOrigName')
+                    origname = path.basename(f.path, extname)
+                else
+                    origname = ""
+                @process_file(editor, imgbuffer, extname, origname)
 
     # triggered in response to a copy pasted image
     handle_cp: (e) ->
@@ -53,10 +65,10 @@ module.exports = MarkdownImageAssistant =
         editor = atom.workspace.getActiveTextEditor()
         e.stopImmediatePropagation()
         imgbuffer = img.toPng()
-        @process_file(editor, imgbuffer, ".png")
+        @process_file(editor, imgbuffer, ".png", "")
 
     # write a given buffer to the local "assets/" directory
-    process_file: (editor, imgbuffer, extname) ->
+    process_file: (editor, imgbuffer, extname, origname) ->
         target_file = editor.getPath()
 
         if path.extname(target_file) not in atom.config.get('markdown-image-assistant.suffixes')
@@ -68,7 +80,10 @@ module.exports = MarkdownImageAssistant =
         md5 = crypto.createHash 'md5'
         md5.update(imgbuffer)
 
-        img_filename = "#{path.parse(target_file).name}-#{md5.digest('hex').slice(0,8)}#{extname}"
+        if origname == ""
+            img_filename = "#{path.parse(target_file).name}-#{md5.digest('hex').slice(0,8)}#{extname}"
+        else
+            img_filename = "#{path.parse(target_file).name}-#{origname}#{extname}"
         console.log img_filename
 
         @create_dir assets_path, ()=>
