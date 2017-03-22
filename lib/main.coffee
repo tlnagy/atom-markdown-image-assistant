@@ -80,7 +80,7 @@ module.exports = MarkdownImageAssistant =
             console.log "Adding images to non-markdown files is not supported"
             return false
 
-        assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
+        assets_dir = path.basename(path.parse(target_file).name + "." + atom.config.get('markdown-image-assistant.imageDir'))
         assets_path = path.join(target_file, "..", assets_dir)
 
         md5 = crypto.createHash 'md5'
