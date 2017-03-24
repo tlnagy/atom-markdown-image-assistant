@@ -30,6 +30,11 @@ module.exports = MarkdownImageAssistant =
             description: "Local directory to copy images into; created if not found."
             type: 'string'
             default: defaultImageDir
+        insertHtmlOverMarkdown:
+            title: "Insert image as Markup, instead of Markdown"
+            description: "Insert an image as HTML Markup, `<img src=''>`, instead of Markdown, `![]()`.  Useful if you want to adjust image `width` or `height`"
+            type: 'boolean'
+            default: false
 
     activate: (state) ->
         # Events subscribed to in atom's system can be easily cleaned up
@@ -105,7 +110,10 @@ module.exports = MarkdownImageAssistant =
         @create_dir assets_path, ()=>
             fs.writeFile path.join(assets_path, img_filename), imgbuffer, 'binary', ()=>
                 console.log "Copied file over to #{assets_path}"
-                editor.insertText "![](#{assets_dir}/#{img_filename})"
+                if atom.config.get('markdown-image-assistant.insertHtmlOverMarkdown')
+                  editor.insertText "<img alt=\"#{img_filename}\" src=\"#{assets_dir}/#{img_filename}\" width=\"\" height=\"\" >"
+                else
+                  editor.insertText "![](#{assets_dir}/#{img_filename})"
 
         return false
 
