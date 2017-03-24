@@ -21,8 +21,8 @@ module.exports = MarkdownImageAssistant =
             type: 'boolean'
             default: false
         preserveFileNameInAssetsFolder:
-            title: "Use the Markdown filename when creating the assets folder"
-            description: "Local directory to copy images into, e.g., `README.assets/`; setting `Image Directory` to a value other than the default of `assets/` overrides this option"
+            title: "Create per-file asset directories"
+            description: "Creates a separate asset directory for each markdown file, e.g. `README.assets/`; setting `Image Directory` to a value other than the default of `assets/` overrides this option"
             type: 'boolean'
             default: false
         imageDir:
