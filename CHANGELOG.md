@@ -1,4 +1,6 @@
-## 0.1.9 (WIP)
+## 0.1.9
+
+* Add support for disabling prepending the target file to the copied image
 
 ## 0.1.8
 

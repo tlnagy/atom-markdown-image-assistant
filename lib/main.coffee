@@ -20,6 +20,11 @@ module.exports = MarkdownImageAssistant =
             description: "When dragging and dropping files, whether to perserve original file names when copying over into the image directory"
             type: 'boolean'
             default: false
+        prependTargetFileName:
+            title: "Prepend the target file name"
+            description: "Whether to prepend the target file name when copying over the image. Overrides the \"Preserve Original Name\" setting."
+            type: 'boolean'
+            default: true
         preserveFileNameInAssetsFolder:
             title: "Create per-file asset directories"
             description: "Creates a separate asset directory for each markdown file, e.g. `README.assets/`; setting `Image Directory` to a value other than the default of `assets/` overrides this option"
@@ -101,7 +106,9 @@ module.exports = MarkdownImageAssistant =
         md5 = crypto.createHash 'md5'
         md5.update(imgbuffer)
 
-        if origname == ""
+        if !atom.config.get('markdown-image-assistant.prependTargetFileName')
+            img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
+        else if origname == ""
             img_filename = "#{path.parse(target_file).name}-#{md5.digest('hex').slice(0,8)}#{extname}"
         else
             img_filename = "#{path.parse(target_file).name}-#{origname}#{extname}"
