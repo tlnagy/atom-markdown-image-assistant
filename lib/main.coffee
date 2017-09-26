@@ -3,7 +3,7 @@ fs = require 'fs'
 path = require 'path'
 crypto = require "crypto"
 
-defaultImageDir = "assets/"
+defaultImageDir = ""
 
 module.exports = MarkdownImageAssistant =
     subscriptions: null
@@ -98,7 +98,10 @@ module.exports = MarkdownImageAssistant =
             return false
 
         if atom.config.get('markdown-image-assistant.imageDir') == defaultImageDir && atom.config.get('markdown-image-assistant.preserveFileNameInAssetsFolder')
-            assets_dir = path.basename(path.parse(target_file).name + "." + atom.config.get('markdown-image-assistant.imageDir'))
+            if defaultImageDir == ""
+                assets_dir = path.basename(path.parse(target_file).name)
+            else    
+                assets_dir = path.basename(path.parse(target_file).name + "." + defaultImageDir)
         else
             assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
         assets_path = path.join(target_file, "..", assets_dir)
