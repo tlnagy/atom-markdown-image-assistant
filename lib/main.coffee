@@ -72,7 +72,7 @@ module.exports = MarkdownImageAssistant =
         for f in dropped_files
             if fs.lstatSync(f.path).isFile()
                 imgbuffer = new Buffer(fs.readFileSync(f.path))
-                extname = path.extname(f.path)
+                extname = path.extname(String(f.path))
                 if atom.config.get('markdown-image-assistant.preserveOrigName')
                     origname = path.basename(f.path, extname)
                 else
