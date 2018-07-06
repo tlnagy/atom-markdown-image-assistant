@@ -86,7 +86,10 @@ module.exports = MarkdownImageAssistant =
         return if img.isEmpty()
         editor = atom.workspace.getActiveTextEditor()
         e.stopImmediatePropagation()
-        imgbuffer = img.toPNG()
+        if Number process.versions.electron[0] >= 2
+          imgbuffer = img.toPNG()
+        else 
+          imgbuffer = img.toPng()
         @process_file(editor, imgbuffer, ".png", "")
 
     # write a given buffer to the local "assets/" directory
