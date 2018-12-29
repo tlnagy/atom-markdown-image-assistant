@@ -110,7 +110,10 @@ module.exports = MarkdownImageAssistant =
         md5.update(imgbuffer)
 
         if !atom.config.get('markdown-image-assistant.prependTargetFileName')
-            img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
+            if origname != ""
+              img_filename = "#{origname}#{extname}"
+            else
+              img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
         else if origname == ""
             img_filename = "#{path.parse(target_file).name}-#{md5.digest('hex').slice(0,8)}#{extname}"
         else
