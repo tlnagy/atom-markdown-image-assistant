@@ -25,6 +25,11 @@ module.exports = MarkdownImageAssistant =
             description: "Whether to prepend the target file name when copying over the image. Overrides the \"Preserve Original Name\" setting."
             type: 'boolean'
             default: true
+        prependDate:
+            title: "Prepend current date"
+            description: "Whether to prepend current date in format yyyy-mm-dd. The date will be added after the target file name."
+            type: 'boolean'
+            default: true
         preserveFileNameInAssetsFolder:
             title: "Create per-file asset directories"
             description: "Creates a separate asset directory for each markdown file, e.g. `README.assets/`; setting `Image Directory` to a value other than the default of `assets/` overrides this option"
@@ -88,7 +93,7 @@ module.exports = MarkdownImageAssistant =
         e.stopImmediatePropagation()
         if Number process.versions.electron[0] >= 2
           imgbuffer = img.toPNG()
-        else 
+        else
           imgbuffer = img.toPng()
         @process_file(editor, imgbuffer, ".png", "")
 
@@ -106,18 +111,36 @@ module.exports = MarkdownImageAssistant =
             assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
         assets_path = path.join(target_file, "..", assets_dir)
 
-        md5 = crypto.createHash 'md5'
-        md5.update(imgbuffer)
-
-        if !atom.config.get('markdown-image-assistant.prependTargetFileName')
-            if origname != ""
-              img_filename = "#{origname}#{extname}"
-            else
-              img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
-        else if origname == ""
-            img_filename = "#{path.parse(target_file).name}-#{md5.digest('hex').slice(0,8)}#{extname}"
+        if origname != ""
+          img_filename = "#{origname}#{extname}"
         else
-            img_filename = "#{path.parse(target_file).name}-#{origname}#{extname}"
+          md5 = crypto.createHash 'md5'
+          md5.update(imgbuffer)
+          img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
+
+        # Prepend date
+        if atom.config.get('markdown-image-assistant.prependDate')
+            today = new Date
+            dd = today.getDate()
+            #The value returned by getMonth is an integer between 0 and 11, referring 0 to January, 1 to February, and so on.
+            mm = today.getMonth() + 1
+            yyyy = today.getFullYear()
+            if dd < 10
+              dd = '0' + dd
+            if mm < 10
+              mm = '0' + mm
+            today = yyyy + '-' + mm + '-' + dd  + '-'
+        else
+           today = ''
+
+        img_filename = today + img_filename
+
+        if atom.config.get('markdown-image-assistant.prependTargetFileName')
+            target_file_name = path.parse(target_file).name + '-'
+        else
+            target_file_name = ''
+        img_filename = target_file_name + img_filename
+
         console.log img_filename
 
         @create_dir assets_path, ()=>
