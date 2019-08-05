@@ -17,7 +17,7 @@ module.exports = MarkdownImageAssistant =
                 type: 'string'
         preserveOrigName:
             title: "Preserve original file names"
-            description: "When dragging and dropping files, whether to perserve original file names when copying over into the image directory"
+            description: "When dragging and dropping files, whether to preserve original file names when copying over into the image directory"
             type: 'boolean'
             default: false
         prependTargetFileName:
@@ -26,8 +26,8 @@ module.exports = MarkdownImageAssistant =
             type: 'boolean'
             default: true
         prependDate:
-            title: "Prepend current date"
-            description: "Whether to prepend current date in format yyyy-mm-dd. The date will be added after the target file name."
+            title: "Prepend current date and time"
+            description: "Whether to prepend current date in format yyyy-mm-dd-########. The date will be added after the target file name."
             type: 'boolean'
             default: true
         preserveFileNameInAssetsFolder:
@@ -116,7 +116,10 @@ module.exports = MarkdownImageAssistant =
         else
           md5 = crypto.createHash 'md5'
           md5.update(imgbuffer)
-          img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
+          if atom.config.get('markdown-image-assistant.prependDate') # shorten cash if we prepend datetime
+            img_filename = "#{md5.digest('hex').slice(0,3)}#{extname}"
+          else
+            img_filename = "#{md5.digest('hex').slice(0,8)}#{extname}"
 
         # Prepend date
         if atom.config.get('markdown-image-assistant.prependDate')
@@ -125,11 +128,26 @@ module.exports = MarkdownImageAssistant =
             #The value returned by getMonth is an integer between 0 and 11, referring 0 to January, 1 to February, and so on.
             mm = today.getMonth() + 1
             yyyy = today.getFullYear()
+            # Format fix
             if dd < 10
               dd = '0' + dd
             if mm < 10
               mm = '0' + mm
-            today = yyyy + '-' + mm + '-' + dd  + '-'
+            # Time
+            hh = today.getHours()
+            mins = today.getMinutes()
+            secs = today.getSeconds()
+            msecs = today.getMilliseconds()
+            if hh < 10
+              hh = '0' + hh
+            if mins < 10
+              mins = '0' + mins
+            if secs < 10
+              secs = '0' + secs
+            if msecs < 10
+              msecs = '0' + msecs
+            
+            today = yyyy + '-' + mm + '-' + dd  + '-' + hh + mins + secs + msecs
         else
            today = ''
 
