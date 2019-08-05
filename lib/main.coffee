@@ -35,6 +35,11 @@ module.exports = MarkdownImageAssistant =
             description: "Local directory to copy images into; created if not found."
             type: 'string'
             default: defaultImageDir
+        imageUrlPrefix:
+            title: "Image URL prefix"
+            description: "Use this prefix instead of the image directory for generated URLs."
+            type: 'string'
+            default: ''
         insertHtmlOverMarkdown:
             title: "Insert image as Markup, instead of Markdown"
             description: "Insert an image as HTML Markup, `<img src=''>`, instead of Markdown, `![]()`.  Useful if you want to adjust image `width` or `height`"
@@ -100,11 +105,21 @@ module.exports = MarkdownImageAssistant =
             console.log "Adding images to non-markdown files is not supported"
             return false
 
-        if atom.config.get('markdown-image-assistant.imageDir') == defaultImageDir && atom.config.get('markdown-image-assistant.preserveFileNameInAssetsFolder')
-            assets_dir = path.basename(path.parse(target_file).name + "." + atom.config.get('markdown-image-assistant.imageDir'))
+        assets_dir_option = atom.config.get('markdown-image-assistant.imageDir')
+        if assets_dir_option == defaultImageDir && atom.config.get('markdown-image-assistant.preserveFileNameInAssetsFolder')
+            assets_dir = path.basename(path.parse(target_file).name + "." + assets_dir_option)
         else
-            assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
-        assets_path = path.join(target_file, "..", assets_dir)
+            if assets_dir_option.startsWith('/') || assets_dir_option.startsWith('\\')
+                assets_dir = assets_dir_option
+                assets_path = assets_dir_option
+            else
+                assets_dir = path.basename(assets_dir_option)
+                assets_path = path.join(target_file, "..", assets_dir)
+
+        assets_url_prefix = atom.config.get('markdown-image-assistant.imageUrlPrefix')
+        if '' == assets_url_prefix
+            assets_url_prefix = assets_path
+
 
         md5 = crypto.createHash 'md5'
         md5.update(imgbuffer)
@@ -124,9 +139,9 @@ module.exports = MarkdownImageAssistant =
             fs.writeFile path.join(assets_path, img_filename), imgbuffer, 'binary', ()=>
                 console.log "Copied file over to #{assets_path}"
                 if atom.config.get('markdown-image-assistant.insertHtmlOverMarkdown')
-                  editor.insertText "<img alt=\"#{img_filename}\" src=\"#{assets_dir}/#{img_filename}\" width=\"\" height=\"\" >"
+                  editor.insertText "<img alt=\"#{img_filename}\" src=\"#{assets_url_prefix}/#{img_filename}\" width=\"\" height=\"\" >"
                 else
-                  editor.insertText "![](#{assets_dir}/#{img_filename})"
+                  editor.insertText "![](#{assets_url_prefix}/#{img_filename})"
 
         return false
 
@@ -139,6 +154,8 @@ module.exports = MarkdownImageAssistant =
                     if created
                         console.log "Successfully created #{dir_path}"
                         callback()
+                    else
+                        console.log "Failed to create #{dir_path}"
             else
                 callback()
 
