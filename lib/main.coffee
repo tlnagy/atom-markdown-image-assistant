@@ -147,7 +147,7 @@ module.exports = MarkdownImageAssistant =
             if msecs < 10
               msecs = '0' + msecs
             
-            today = yyyy + '-' + mm + '-' + dd  + '-' + hh + mins + secs + msecs
+            today = yyyy + '-' + mm + '-' + dd  + '-' + hh + mins + secs + msecs + '-'
         else
            today = ''
 
