@@ -32,9 +32,14 @@ module.exports = MarkdownImageAssistant =
             default: false
         imageDir:
             title: "Image directory"
-            description: "Local directory to copy images into; created if not found."
+            description: "Local directory to copy images into; created if not found.  Leave it empty to create folder for assets in format: `filename.assets`"
             type: 'string'
             default: defaultImageDir
+        imageDirNameNoExtension:
+            title: "no `.assets` extension in folder name"
+            description: "Keep assets folder with the same name as filename without `.assets` e.g: `![](README/README-37a926de.png)`"
+            type: 'boolean'
+            default: false
         insertHtmlOverMarkdown:
             title: "Insert image as Markup, instead of Markdown"
             description: "Insert an image as HTML Markup, `<img src=''>`, instead of Markdown, `![]()`.  Useful if you want to adjust image `width` or `height`"
@@ -88,7 +93,7 @@ module.exports = MarkdownImageAssistant =
         e.stopImmediatePropagation()
         if Number process.versions.electron[0] >= 2
           imgbuffer = img.toPNG()
-        else 
+        else
           imgbuffer = img.toPng()
         @process_file(editor, imgbuffer, ".png", "")
 
@@ -104,6 +109,17 @@ module.exports = MarkdownImageAssistant =
             assets_dir = path.basename(path.parse(target_file).name + "." + atom.config.get('markdown-image-assistant.imageDir'))
         else
             assets_dir = path.basename(atom.config.get('markdown-image-assistant.imageDir'))
+
+        # if selected folder for assets will be created with the same name as file name without extension .assets
+        # this is usefull for Hexo users where assets can be stored in folder with teh same name as post.
+        # e.g. ![](README/README-37a926de.png)
+
+        if atom.config.get('markdown-image-assistant.imageDirNameNoExtension')
+            assets_dir = path.basename(path.parse(target_file).name)
+            console.log "Successfully created assets dir #{assets_dir}"
+
+        # set asset_path
+
         assets_path = path.join(target_file, "..", assets_dir)
 
         md5 = crypto.createHash 'md5'
